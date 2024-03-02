@@ -31,6 +31,50 @@ def vistaEmpleados():
     empleado = Empleados.query.all()
     return render_template("vista_empleados.html", empleados=empleado)
 
+@app.route("/eliminar", methods=["GET", "POST"])
+def eliminar():
+    emp_form = forms.EmpleadoForm(request.form)
+    if request.method == "GET":
+        id = request.args.get('id')
+        emp1 = db.session.query(Empleados).filter(Empleados.id == id).first()
+        emp_form.id.data = request.args.get('id')
+        emp_form.nombre.data = emp1.nombre
+        emp_form.correo.data = emp1.correo
+        emp_form.telefono.data = emp1.telefono
+        emp_form.direccion.data = emp1.direccion
+        emp_form.sueldo.data = emp1.sueldo
+    elif request.method == 'POST':
+        id = emp_form.id.data
+        alum = Empleados.query.get(id)
+        db.session.delete(alum)
+        db.session.commit()
+    return render_template('eliminar.html', form=emp_form)
+
+@app.route("/modificar", methods=["GET", "POST"])
+def modificar():
+    emp_form = forms.EmpleadoForm(request.form)
+    if request.method == "GET":
+        id = request.args.get('id')
+        emp1 = db.session.query(Empleados).filter(Empleados.id == id).first()
+        emp_form.id.data = request.args.get('id')
+        emp_form.nombre.data = emp1.nombre
+        emp_form.correo.data = emp1.correo
+        emp_form.telefono.data = emp1.telefono
+        emp_form.direccion.data = emp1.direccion
+        emp_form.sueldo.data = emp1.sueldo
+    elif request.method == 'POST':
+        id = emp_form.id.data
+        emp1 = db.session.query(Empleados).filter(Empleados.id == id).first()
+        emp1.nombre = emp_form.nombre.data
+        emp1.correo = emp_form.correo.data
+        emp1.telefono = emp_form.telefono.data
+        emp1.direccion = emp_form.direccion.data
+        emp1.sueldo = emp_form.sueldo.data
+        db.session.add(emp1)
+        db.session.commit()
+    return render_template('modificar.html', form=emp_form)
+
+
 if __name__ == "__main__":
     crsf.init_app(app)
     db.init_app(app)
