@@ -1,12 +1,15 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect
 from flask_wtf.csrf import CSRFProtect
 import forms
 from config import DevelopmentConfig
-from models import db, Empleados
+from datetime import datetime
+from models import db, Empleados, Pedido, Venta
+from sqlalchemy import func
 
 app = Flask(__name__)
 app.config.from_object(DevelopmentConfig)
 crsf = CSRFProtect()
+pedidos = []
 
 @app.errorhandler(404)
 def page_not_found(e):
@@ -74,6 +77,119 @@ def modificar():
         db.session.commit()
     return render_template('modificar.html', form=emp_form)
 
+@app.route("/pedido", methods=["GET", "POST"])
+def agregar_pedido():
+
+    if request.method == "POST":
+        # Obtener los datos del formulario
+        nombre = request.form['nombre']
+        direccion = request.form['direccion']
+        telefono = request.form['telefono']
+        tamano = request.form['tamano']
+        ingredientes = ', '.join(request.form.getlist('ingredientes'))  # Unir los ingredientes en una cadena
+        no_pizzas = int(request.form['no_pizzas'])
+        
+        # Calcular el costo adicional por ingredientes
+        costo_por_ingredientes = len(request.form.getlist('ingredientes')) * 10
+        
+        # Calcular el subtotal según el tamaño
+        if tamano == 'chica':
+            subtotal = no_pizzas * 40 + costo_por_ingredientes
+        elif tamano == 'mediana':
+            subtotal = no_pizzas * 80 + costo_por_ingredientes
+        else:
+            subtotal = no_pizzas * 120 + costo_por_ingredientes
+
+        idsugerido = len(pedidos) + 1
+        while idsugerido in [pedido['id'] for pedido in pedidos]:
+            idsugerido += 1
+        # Agregar el pedido a la lista de pedidos
+        pedidos.append({
+            'id': idsugerido,
+            'nombre': nombre,
+            'direccion': direccion,
+            'telefono': telefono,
+            'tamano': tamano,
+            'ingredientes': ingredientes,
+            'no_pizzas': no_pizzas,
+            'subtotal': subtotal
+        })
+
+        # Redirigir a la misma página después de enviar el formulario
+        return redirect("/pedido")
+    else:
+        form = forms.PedidoForm()
+        return render_template("vista_pedidos.html", form=form, pedidos1=pedidos)
+
+@app.route("/quitar_pedido", methods=["POST"])
+def quitar_pedido():
+    global pedidos
+
+    pedido_id = int(request.form["pedido_id"])
+
+    pedidos = [pedido for pedido in pedidos if pedido["id"] != pedido_id]
+
+    return redirect('/pedido')
+
+@app.route("/alerta", methods=["POST"])
+def guardar_pedido():
+    total_pedido = sum(pedido['subtotal'] for pedido in pedidos) 
+
+    return render_template("confirmar_pedido.html", total_pedido=total_pedido)
+
+@app.route("/confirmar_pedido", methods=["POST"])
+def confirmar_pedido():
+    global pedidos
+    decision = request.form.get('decision')
+    
+    if decision == 'si':
+        total_venta = 0
+        for p in pedidos:
+            ped = Pedido(
+            nombre = p['nombre'],
+            direccion = p['direccion'],
+            telefono = p['telefono'],
+            tamano = p['tamano'],
+            ingredientes = p['ingredientes'],
+            no_pizzas = p['no_pizzas']
+            )
+            db.session.add(ped)
+            db.session.commit()
+
+        total_venta = sum(pedido['subtotal'] for pedido in pedidos) 
+        venta = Venta(
+            nombre = pedidos[0]['nombre'],
+            total = total_venta
+        )
+        db.session.add(venta)
+        db.session.commit()
+        pedidos = []
+        return redirect("/ventas")
+    else:
+        return redirect("/pedido")
+
+@app.route("/ventas", methods=["GET", "POST"])
+def mostrar_ventas():
+    ventas = []
+    total_ventas = 0  # Variable para almacenar el total de ventas
+
+    if request.method == "POST":
+        dia_seleccionado = request.form.get('dia')
+        mes_seleccionado = request.form.get('mes')
+
+        if dia_seleccionado:
+            fecha_dia = datetime.strptime(dia_seleccionado, '%Y-%m-%d').date()
+            ventas = Venta.query.filter(func.date(Venta.fechaVenta) == fecha_dia).all()
+        elif mes_seleccionado:
+            mes_numero = int(mes_seleccionado)
+            ventas = Venta.query.filter(func.extract('month', Venta.fechaVenta) == mes_numero).all()
+        else:
+            ventas = Venta.query.all()
+
+        # Calcular el total de ventas
+        total_ventas = sum(venta.total for venta in ventas)
+
+    return render_template("ventas.html", ventas=ventas, total_ventas=total_ventas)
 
 if __name__ == "__main__":
     crsf.init_app(app)

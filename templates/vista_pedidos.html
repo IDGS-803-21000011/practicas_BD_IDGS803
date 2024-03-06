@@ -1,0 +1,98 @@
+{% extends 'layout.html' %}
+{% block content %}
+{% from "_macros.html" import render_field %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <form name="registro" action="/pedido" id="pedidoForm" method="POST" novalidate>
+                <div class="form-row">
+                    <div class="form-group col-md-4">
+                        {{ render_field(form.nombre, class="form-control", placeholder="Nombre") }}
+                    </div>
+                    <div class="form-group col-md-4">
+                        {{ render_field(form.direccion, class="form-control", placeholder="Dirección") }}
+                    </div>
+                    <div class="form-group col-md-4">
+                        {{ render_field(form.telefono, class="form-control", placeholder="Teléfono") }}
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-md-12">
+                        {{ render_field(form.tamano, class="form-control", style="list-style: none;") }}
+                    </div>
+                </div>
+                <div class="form-group col-md-12">
+                    <label>Ingredientes</label><br>
+                    {% for value, label in form.ingredientes.choices %}
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" name="ingredientes" value="{{ value }}">
+                        <label class="form-check-label">{{ label }}</label>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-md-12">
+                        {{ render_field(form.no_pizzas, class="form-control") }}
+                    </div>
+                </div>
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+                <div class="form-row">
+                    <div class="form-group col-md-12">
+                        <input type="submit" id="registrar" name="registrar" value="Agregar" class="btn btn-primary" />
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <!-- Tabla de Pedidos -->
+    <div class="row">
+        <div class="col-md-12">
+            <h2>Tabla de Pedidos:</h2>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th style="display: none;">id</th>
+                        <th style="display: none;">Nombre</th>
+                        <th style="display: none;">Dirección</th>
+                        <th style="display: none;">Teléfono</th>
+                        <th>Tamaño</th>
+                        <th>Ingredientes</th>
+                        <th>Número de Pizzas</th>
+                        <th>Subtotal</th>
+                        <th>Quitar</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for pedido in pedidos1 %}
+                    <tr>
+                        <td style="display: none;">{{ pedido.id }}</td>
+                        <td style="display: none;">{{ pedido.nombre }}</td>
+                        <td style="display: none;">{{ pedido.direccion }}</td>
+                        <td style="display: none;">{{ pedido.telefono }}</td>
+                        <td>{{ pedido.tamano }}</td>
+                        <td>{{ pedido.ingredientes }}</td>
+                        <td>{{ pedido.no_pizzas }}</td>
+                        <td>{{ pedido.subtotal }}</td>
+                        <td>
+                            <form action="/quitar_pedido" method="POST">
+                                <input type="hidden" name="pedido_id" value="{{ pedido.id }}">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button type="submit" class="btn btn-danger">Quitar</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="row justify-content-center">
+        <div class="col-md-8 text-center mb-4" style="margin: 15px;">
+            <form action="/alerta" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="btn btn-success">Guardar</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

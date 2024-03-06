@@ -1,0 +1,23 @@
+{% extends 'layout.html' %}
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center mt-5">
+        <div class="col-md-6">
+            <div class="card text-center">
+                <div class="card-body d-flex flex-column align-items-center">
+                    <h1 class="card-title">Confirmar Pedido</h1>
+                    <p class="card-text">El costo total del pedido es: <b>{{ total_pedido }}</b></p>
+                    <p class="card-text">¿Estás seguro de realizar este pedido?</p>
+                    <form action="/confirmar_pedido" method="POST">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <div class="d-flex justify-content-center">
+                            <button type="submit" name="decision" value="si" class="btn btn-success">Sí</button>
+                            <button type="submit" name="decision" value="no" class="btn btn-danger ml-2">No</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

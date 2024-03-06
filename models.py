@@ -11,3 +11,21 @@ class Empleados(db.Model):
     telefono = db.Column(db.String(50))
     direccion = db.Column(db.String(100))
     sueldo = db.Column(db.Integer)
+
+class Pedido(db.Model):
+    __tablename__ = 'pedidos'
+    id = db.Column(db.Integer, primary_key=True)
+    nombre = db.Column(db.String(50))
+    direccion = db.Column(db.String(50))
+    telefono = db.Column(db.String(50))
+    fechaCompra = db.Column(db.DateTime, default = datetime.datetime.now)
+    tamano = db.Column(db.String(50))
+    ingredientes = db.Column(db.String(50))
+    no_pizzas = db.Column(db.Integer)
+
+class Venta(db.Model):
+    __tablename__ = 'ventas'
+    id = db.Column(db.Integer, primary_key=True)
+    nombre = db.Column(db.String(50))
+    total = db.Column(db.Integer)
+    fechaVenta = db.Column(db.DateTime, default = datetime.datetime.now)
