@@ -81,18 +81,16 @@ def modificar():
 def agregar_pedido():
 
     if request.method == "POST":
-        # Obtener los datos del formulario
+
         nombre = request.form['nombre']
         direccion = request.form['direccion']
         telefono = request.form['telefono']
         tamano = request.form['tamano']
-        ingredientes = ', '.join(request.form.getlist('ingredientes'))  # Unir los ingredientes en una cadena
+        ingredientes = ', '.join(request.form.getlist('ingredientes'))  
         no_pizzas = int(request.form['no_pizzas'])
         
-        # Calcular el costo adicional por ingredientes
         costo_por_ingredientes = len(request.form.getlist('ingredientes')) * 10
-        
-        # Calcular el subtotal según el tamaño
+
         if tamano == 'chica':
             subtotal = no_pizzas * 40 + costo_por_ingredientes
         elif tamano == 'mediana':
@@ -103,7 +101,7 @@ def agregar_pedido():
         idsugerido = len(pedidos) + 1
         while idsugerido in [pedido['id'] for pedido in pedidos]:
             idsugerido += 1
-        # Agregar el pedido a la lista de pedidos
+
         pedidos.append({
             'id': idsugerido,
             'nombre': nombre,
@@ -115,7 +113,6 @@ def agregar_pedido():
             'subtotal': subtotal
         })
 
-        # Redirigir a la misma página después de enviar el formulario
         return redirect("/pedido")
     else:
         form = forms.PedidoForm()
@@ -171,7 +168,7 @@ def confirmar_pedido():
 @app.route("/ventas", methods=["GET", "POST"])
 def mostrar_ventas():
     ventas = []
-    total_ventas = 0  # Variable para almacenar el total de ventas
+    total_ventas = 0 
 
     if request.method == "POST":
         dia_seleccionado = request.form.get('dia')
@@ -186,7 +183,6 @@ def mostrar_ventas():
         else:
             ventas = Venta.query.all()
 
-        # Calcular el total de ventas
         total_ventas = sum(venta.total for venta in ventas)
 
     return render_template("ventas.html", ventas=ventas, total_ventas=total_ventas)
