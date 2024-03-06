@@ -79,8 +79,8 @@ def modificar():
 
 @app.route("/pedido", methods=["GET", "POST"])
 def agregar_pedido():
-
-    if request.method == "POST":
+    pedido_form = forms.PedidoForm()
+    if request.method == "POST" and pedido_form.validate():
 
         nombre = request.form['nombre']
         direccion = request.form['direccion']
@@ -115,8 +115,7 @@ def agregar_pedido():
 
         return redirect("/pedido")
     else:
-        form = forms.PedidoForm()
-        return render_template("vista_pedidos.html", form=form, pedidos1=pedidos)
+        return render_template("vista_pedidos.html", form=pedido_form, pedidos1=pedidos)
 
 @app.route("/quitar_pedido", methods=["POST"])
 def quitar_pedido():
