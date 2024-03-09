@@ -9,8 +9,17 @@
                     <form action="/ventas" method="POST">
                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                         <div class="form-group">
-                            <label for="dia">Seleccionar día:</label>
-                            <input type="date" id="dia" name="dia" class="form-control">
+                            <label for="dia_semana">Seleccionar día de la semana:</label>
+                            <select id="dia_semana" name="dia_semana" class="form-control">
+                                <option value="">Seleccione un día de la semana</option>
+                                <option value="Monday">Lunes</option>
+                                <option value="Tuesday">Martes</option>
+                                <option value="Wednesday">Miércoles</option>
+                                <option value="Thursday">Jueves</option>
+                                <option value="Friday">Viernes</option>
+                                <option value="Saturday">Sábado</option>
+                                <option value="Sunday">Domingo</option>
+                            </select>
                         </div>
                         <div class="form-group">
                             <label for="mes">Seleccionar mes:</label>

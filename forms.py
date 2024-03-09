@@ -1,6 +1,7 @@
 from wtforms import Form
 from wtforms import StringField, SelectField, RadioField, EmailField, IntegerField, SelectMultipleField
 from wtforms import validators
+from wtforms import DateField
 
 class EmpleadoForm(Form):
     id = IntegerField('id')
@@ -68,3 +69,4 @@ class PedidoForm(Form):
         validators.DataRequired(message='El campo es requerido.'),
         validators.number_range(min=1, message='Ingresa una cantidad válida.')
     ])
+    fecha = DateField('fecha', format='%Y-%m-%d', validators=[validators.DataRequired(message='El campo es requerido.')])
