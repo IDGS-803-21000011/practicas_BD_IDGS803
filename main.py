@@ -117,11 +117,14 @@ def agregar_pedido():
             dia_semana = fecha_datetime.strftime('%A')
 
             if tamano == 'chica':
-                subtotal = no_pizzas * 40 + costo_por_ingredientes
+                porpizza = 40 + costo_por_ingredientes
+                subtotal = no_pizzas * porpizza
             elif tamano == 'mediana':
-                subtotal = no_pizzas * 80 + costo_por_ingredientes
+                porpizza = 80 + costo_por_ingredientes
+                subtotal = no_pizzas * porpizza
             else:
-                subtotal = no_pizzas * 120 + costo_por_ingredientes
+                porpizza = 120 + costo_por_ingredientes
+                subtotal = no_pizzas * porpizza
 
             idsugerido = len(pedidos) + 1
             while idsugerido in [pedido['id'] for pedido in pedidos]:
@@ -203,6 +206,10 @@ def confirmar_pedido():
         db.session.add(venta)
         db.session.commit()
         pedidos = []
+        session.pop('nombre', None)
+        session.pop('direccion', None)
+        session.pop('telefono', None)
+        session.pop('fecha', None)
         return redirect("/ventas")
     else:
         return redirect("/pedido")
